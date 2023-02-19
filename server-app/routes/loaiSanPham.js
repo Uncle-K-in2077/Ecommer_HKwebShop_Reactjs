@@ -34,7 +34,7 @@ router.get("/:id", (req, res) => {
   const id = req.params.id;
 
   let sql = `select * from loaiSanPham where id = '${id}' `;
-  con.query(sql, (err, rs) => {
+  con.query(sql, function (err, rs) {
     if (err) {
       return res.send(err);
     }
@@ -73,9 +73,9 @@ router.post("/", (req, res) => {
 });
 
 //Update
-router.put("/:id", (req, res)=>{
-    const id = req.params.id;
-    let sql = `update loaisanpham set TenLoaiSP = '${req.body.TenLoaiSP}', trangThai= ${req.TrangThai}`
-})
+router.put("/:id", (req, res) => {
+  const id = req.params.id;
+  let sql = `update loaisanpham set TenLoaiSP = '${req.body.TenLoaiSP}', trangThai= ${req.TrangThai}`;
+});
 
 module.exports = router;

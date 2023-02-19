@@ -9,15 +9,18 @@ router.get("/", (req, res) => {
   const keyword = req.query.q;
 
   const sortColumn = req.query._sort || "id";
-  const sortOrder = req.query._order || "asc";
+  const sortOrder = req.query._order || "desc";
   const page = parseInt(req.query._page) || 1;
-  const limit = parseInt(req.query._limit) || 10;
+  const limit = parseInt(req.query._limit) || 100;
   const offset = (page - 1) * limit;
 
-  let sql = `select * from SanPham `;
+  let sql = `select SanPham.*,LoaiSanPham.TenLoaiSP from SanPham join LoaiSanPham on LoaiSanPham.id = SanPham.idLSP where SanPham.TrangThai = 1`;
 
   if (keyword) {
     sql = `select * from SanPham where id like '%${keyword}%' `;
+  }
+  if (req.query._idLSP) {
+    sql = `select sanpham.*,LoaiSanPham.id as 'idLSP',LoaiSanPham.TenLoaiSP as 'TenLoaiSP' from sanpham join LoaiSanPham on LoaiSanPham.id=sanPham.idLSP where idLSP = ${req.query._idLSP}`;
   }
 
   sql += ` ORDER BY ${sortColumn} ${sortOrder} LIMIT ${offset}, ${limit}`;
@@ -33,13 +36,13 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   const id = req.params.id;
 
-  let sql = `select * from SanPham where id = '${id}' `;
+  let sql = `select * from SanPham where id = ${id} `;
 
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);
     }
-    res.json(rs);
+    res.json(rs[0]);
   });
 });
 
@@ -47,7 +50,7 @@ router.get("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
   const id = req.params.id;
 
-  let sql = `Delete sanpham where id = '${id}' `;
+  let sql = `Delete FROM sanpham where id = ${id} `;
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);
@@ -59,23 +62,27 @@ router.delete("/:id", (req, res) => {
 //them moi
 router.post("/", (req, res) => {
   const newSP = {
-    id: req.body.id,
     TenSanPham: req.body.TenSanPham,
     HinhAnh: req.body.HinhAnh,
     Price: req.body.Price,
     Mota: req.body.Mota,
     idLSP: req.body.idLSP,
-    TrangThai: req.body.TrangThai,
   };
-  let sql = `INSERT INTO sanpham (ID, TenSanPham, HinhAnh, Price, Mota, idLSP, TrangThai) 
-    VALUES (
-    '${newSP.id}', 
-    '${newSP.TenSanPham}' 
-    '${newSP.HinhAnh}', 
-    '${newSP.Price}', 
-    '${newSP.Mota}', 
-    '${newSP.idLSP}', 
-    '${newSP.TrangThai}')`;
+  let sql = `INSERT INTO sanpham ( TenSanPham, HinhAnh, Price, Mota, idLSP, TrangThai) VALUES ('${newSP.TenSanPham}', '${newSP.HinhAnh}', '${newSP.Price}', '${newSP.Mota}', ${newSP.idLSP}, 1)`;
+  con.query(sql, (err, rs) => {
+    if (err) {
+      return res.send(err);
+      // console.log(newSP);
+    }
+    res.json(rs);
+    console.log(newSP);
+  });
+});
+
+//Update Trang Thai (Xóa)
+router.put("/remove/:id", (req, res) => {
+  const id = req.params.id;
+  let sql = `UPDATE SanPham set TrangThai = 0 where id = ${id}`;
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);
@@ -86,15 +93,8 @@ router.post("/", (req, res) => {
 
 //Update
 router.put("/:id", (req, res) => {
-  const id = req.params.id;
-  let sql = `UPDATE SanPham set 
-    TenSanPham='${req.body.TenSanPham}',  
-    HinhAnh='${req.body.HinhAnh}', 
-    Price='${req.body.Price}', 
-    Mota='${req.body.Mota}', 
-    idLSP='${req.body.idLSP}', 
-    TrangThai='${req.body.TrangThai}' 
-    Where id = '${id}'`;
+  const newProduct = req.body.product;
+  let sql = `UPDATE sanpham SET TenSanPham='${newProduct.TenSanPham}',HinhAnh='${newProduct.HinhAnh}',Price=${newProduct.Price},Mota='${newProduct.Mota}',idLSP=${newProduct.idLSP},TrangThai=${newProduct.TrangThai} WHERE ID=${newProduct.ID}`;
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);
