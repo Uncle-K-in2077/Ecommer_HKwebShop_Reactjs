@@ -3,6 +3,7 @@
 const express = require("express");
 const router = express.Router();
 const con = require("../Connection");
+const transporter = require("../EmailRoot");
 
 //Get ALL
 
@@ -17,7 +18,7 @@ const con = require("../Connection");
 router.get("/", function (req, res) {
   const keyword = req.query.q;
   const sortColumn = req.query._sort || "DonHang.id";
-  const sortOrder = req.query._order || "asc";
+  const sortOrder = req.query._order || "desc";
   const page = parseInt(req.query._page) || 1;
   const limit = parseInt(req.query._limit) || 1000;
   const offset = (page - 1) * limit;
@@ -137,6 +138,27 @@ router.post("/", function (req, res) {
             if (err) {
               return res.send(err.code);
             }
+            const mailOptions = {
+              to: "oanhntkpk02175@fpt.edu.vn",
+              subject: "Notice from Uncle-K-Ecommerce-Shop ❤",
+              text: `You have a new order from Uncle-K-Ecommerce-Shop
+              
+              Total income of the new order is: ${order.totalPrice.toLocaleString()} vnđ
+
+              Thank you for choosing Uncle-K-Ecommerce-Shop!
+              🦖🦖🦖🦖🦖🦖🦖🦖🦖🦖🦖🦖🦖
+              Là Bởi Vì Có Oanh - Mây Thay Màu ☁
+              `,
+            };
+            transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                console.log(error);
+                console.log("There is an Error when sending this Email");
+                // res.status(500).send("There is an Error when sending this Email")
+              } else {
+                console.log("Success");
+              }
+            });
           });
         });
       }

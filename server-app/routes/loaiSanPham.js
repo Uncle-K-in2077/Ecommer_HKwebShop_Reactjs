@@ -38,7 +38,7 @@ router.get("/:id", (req, res) => {
     if (err) {
       return res.send(err);
     }
-    res.json(rs);
+    res.json(rs[0]);
   });
 });
 
@@ -57,25 +57,30 @@ router.delete("/:id", (req, res) => {
 
 //Them moi
 router.post("/", (req, res) => {
-  const newLoaiSanPham = {
-    id: req.body.id,
+  const newDM = {
     TenLoaiSP: req.body.TenLoaiSP,
-    TrangThai: req.body.TrangThai,
   };
-  let sql = `INSERT INTO LoaiSanPham(id, TenLoaiSP, TrangThai) VALUES (
-                '', '${newLoaiSanPham.TenLoaiSP}', '${newLoaiSanPham.TrangThai}')`;
+  let sql = `INSERT INTO LoaiSanPham( TenLoaiSP, TrangThai) VALUES ('${newDM.TenLoaiSP}', 1)`;
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);
     }
     res.json(rs);
+    console.log(sql);
   });
 });
 
 //Update
 router.put("/:id", (req, res) => {
-  const id = req.params.id;
-  let sql = `update loaisanpham set TenLoaiSP = '${req.body.TenLoaiSP}', trangThai= ${req.TrangThai}`;
+  const newDM = req.body.cate;
+  let sql = `update loaisanpham set TenLoaiSP = '${newDM.TenLoaiSP}', trangThai= 1 WHERE id = ${newDM.id}`;
+  con.query(sql, (err, rs) => {
+    if (err) {
+      return res.send(err);
+    }
+    res.json(rs);
+    console.log(sql);
+  });
 });
 
 module.exports = router;

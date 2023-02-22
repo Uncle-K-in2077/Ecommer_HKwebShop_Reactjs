@@ -33,13 +33,13 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   const id = req.params.id;
 
-  let sql = `select * from user where id = '${id}' `;
+  let sql = `select * from user where id = ${id}  `;
 
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);
     }
-    res.json(rs);
+    res.json(rs[0]);
   });
 });
 
@@ -93,16 +93,9 @@ router.post("/", (req, res) => {
 
 //Update
 router.put("/:id", (req, res) => {
-  let sql = `Update user set name='${req.body.name}', 
-        email='${req.body.email}', 
-        password='${req.body.password}', 
-        soDienThoai='${req.body.soDienThoai}', 
-        diaChi='${req.body.diaChi}', 
-         
-        trangthai='${req.body.trangThai}', 
-         
-        role='${req.body.role}' 
-        WHERE id='${req.body.id}'`;
+  const newUser = req.body.user;
+
+  let sql = `UPDATE user SET Name='${newUser.Name}',Email='${newUser.Email}',Password='${newUser.Password}',SoDienThoai='${newUser.SoDienThoai}',DiaChi='${newUser.DiaChi}',TrangThai=${newUser.TrangThai},role=${newUser.role} WHERE ID = ${newUser.ID}`;
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);

@@ -20,8 +20,36 @@ router.get("/", (req, res) => {
     sql = `select * from SanPham where id like '%${keyword}%' `;
   }
   if (req.query._idLSP) {
-    sql = `select sanpham.*,LoaiSanPham.id as 'idLSP',LoaiSanPham.TenLoaiSP as 'TenLoaiSP' from sanpham join LoaiSanPham on LoaiSanPham.id=sanPham.idLSP where idLSP = ${req.query._idLSP}`;
+    sql = `select sanpham.*,LoaiSanPham.id as 'idLSP',LoaiSanPham.TenLoaiSP as 'TenLoaiSP' from sanpham join LoaiSanPham on LoaiSanPham.id=sanPham.idLSP where idLSP = ${req.query._idLSP} and sanpham.TrangThai = 1`;
   }
+
+  sql += ` ORDER BY ${sortColumn} ${sortOrder} LIMIT ${offset}, ${limit}`;
+  con.query(sql, (err, rs) => {
+    if (err) {
+      return res.send(err);
+    }
+    res.json(rs);
+  });
+});
+
+//Get Deleted Products
+router.get("/deleted/", (req, res) => {
+  const keyword = req.query.q;
+
+  const sortColumn = req.query._sort || "id";
+  const sortOrder = req.query._order || "desc";
+  const page = parseInt(req.query._page) || 1;
+  const limit = parseInt(req.query._limit) || 100;
+  const offset = (page - 1) * limit;
+
+  let sql = `select SanPham.*,LoaiSanPham.TenLoaiSP from SanPham join LoaiSanPham on LoaiSanPham.id = SanPham.idLSP where SanPham.TrangThai = 0`;
+
+  // if (keyword) {
+  //   sql = `select * from SanPham where id like '%${keyword}%' `;
+  // }
+  // if (req.query._idLSP) {
+  //   sql = `select sanpham.*,LoaiSanPham.id as 'idLSP',LoaiSanPham.TenLoaiSP as 'TenLoaiSP' from sanpham join LoaiSanPham on LoaiSanPham.id=sanPham.idLSP where idLSP = ${req.query._idLSP} and sanpham.TrangThai = 1`;
+  // }
 
   sql += ` ORDER BY ${sortColumn} ${sortOrder} LIMIT ${offset}, ${limit}`;
   con.query(sql, (err, rs) => {
@@ -83,6 +111,18 @@ router.post("/", (req, res) => {
 router.put("/remove/:id", (req, res) => {
   const id = req.params.id;
   let sql = `UPDATE SanPham set TrangThai = 0 where id = ${id}`;
+  con.query(sql, (err, rs) => {
+    if (err) {
+      return res.send(err);
+    }
+    res.json(rs);
+  });
+});
+
+//Update Trang Thai (Khôi phục)
+router.put("/restore/:id", (req, res) => {
+  const id = req.params.id;
+  let sql = `UPDATE SanPham set TrangThai = 1 where id = ${id}`;
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);

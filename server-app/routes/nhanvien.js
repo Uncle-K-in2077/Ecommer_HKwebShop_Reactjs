@@ -33,13 +33,13 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   const id = req.params.id;
 
-  let sql = `select * from nhanvien where id = '${id}' `;
+  let sql = `select * from nhanvien where id = ${id} `;
 
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);
     }
-    res.json(rs);
+    res.json(rs[0]);
   });
 });
 
@@ -67,10 +67,9 @@ router.post("/", (req, res) => {
     ngayVaoLam: req.body.ngayVaoLam,
     ghiChu: req.body.ghiChu,
   };
-let sql =
-  `insert into NhanVien (id, Name, SoDienThoai, DiaChi, NgaySinh, Luong, GioiTin, NgayVaoLam, GhiChu, TrangThai) VALUES (
+  let sql = `insert into NhanVien (id, Name, SoDienThoai, DiaChi, NgaySinh, Luong, GioiTin, NgayVaoLam, GhiChu, TrangThai) VALUES (
     '', '${item.name}', '${item.soDienThoai}', '${item.diaChi}', '${item.ngaySinh}', '${item.luong}', '${item.gioiTinh}', '${item.ngayVaoLam}', '${item.ghiChu}', 1
-  )`
+  )`;
   con.query(sql, (err, rs) => {
     if (err) {
       return res.send(err);
